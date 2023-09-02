@@ -73,5 +73,6 @@ model Reservation {
   createdAt  DateTime @default(now())
 
   User    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // Need to re-push this as listing Listing
   Listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
 }
