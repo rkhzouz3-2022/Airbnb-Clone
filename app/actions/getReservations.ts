@@ -1,54 +1,55 @@
 import prisma from "@/app/libs/prismadb";
 
 interface IParams {
-    listingId?: string,
-    userId?: string,
-    authorId?: string,
+  listingId?: string;
+  userId?: string;
+  authorId?: string;
 }
 
-export default async function getReservations( params: IParams ) {
-    try {
-        const { listingId, userId, authorId } = params;
+export default async function getReservations(
+  params: IParams
+) {
+  try {
+    const { listingId, userId, authorId } = params;
+
+    const query: any = {};
         
-        const query: any = {};
+    if (listingId) {
+      query.listingId = listingId;
+    };
 
-        if (listingId) {
-            query.listingId = listingId;
-        }
-
-        if (userId) {
-            query.userId = userId;
-        }
-
-        if (authorId) {
-            query.listing = { userId: authorId }
-        }
-
-        const reservations = await prisma.reservation.findMany({
-            where: query,
-            include: {
-                Listing: true,
-            },
-            orderBy: {
-                createdAt: "desc"
-            }
-        })
-
-        const safeReservations = reservations.map((reservation) => ({
-            ...reservation,
-            createdAt: reservation.createdAt.toISOString(),
-            startDate: reservation.startDate.toISOString(),
-            endDate: reservation.endDate.toISOString(),
-            listing: {
-                ...reservation.Listing,
-                createdAt: reservation.Listing.createdAt.toISOString()
-
-            }
-        }))
-
-        return safeReservations;
+    if (userId) {
+      query.userId = userId;
     }
-    catch (error: any) {
-        throw new Error(error);
+
+    if (authorId) {
+      query.Listing = { userId: authorId };
     }
+
+    const reservations = await prisma.reservation.findMany({
+      where: query,
+      include: {
+        Listing: true
+      },
+      orderBy: {
+        createdAt: 'desc'
+      }
+    });
+
+    const safeReservations = reservations.map(
+      (reservation) => ({
+      ...reservation,
+      createdAt: reservation.createdAt.toISOString(),
+      startDate: reservation.startDate.toISOString(),
+      endDate: reservation.endDate.toISOString(),
+      listing: {
+        ...reservation.Listing,
+        createdAt: reservation.Listing.createdAt.toISOString(),
+      },
+    }));
+
+    return safeReservations;
+  } catch (error: any) {
+    throw new Error(error);
+  }
 }
